@@ -1,0 +1,51 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Deploy Kittens Carousel Static Website on EC2 using Apache
+
+Parameters:
+  KeyName:
+    Description: Select your keypair.
+    Type: AWS::EC2::KeyPair::KeyName
+
+Resources:
+  WebSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allows SSH and HTTP # Required
+      SecurityGroupIngress: 
+        - CidrIp: 0.0.0.0/0
+          FromPort: 22
+          IpProtocol: tcp
+          ToPort: 22
+        - CidrIp: 0.0.0.0/0
+          FromPort: 80
+          IpProtocol: tcp
+          ToPort: 80
+
+  WebServer:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t2.micro
+      ImageId: ami-0c465454d5e2a38a1  # Amazon Linux 2023 - us-east-1 için örnek
+      KeyName: !Ref KeyName
+      SecurityGroupIds:
+        - !Ref WebSG
+      Tags:
+        - Key: Name
+          Value: !Sub Web Server of ${AWS::StackName}
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          dnf update -y
+          dnf install -y httpd git
+          systemctl start httpd
+          systemctl enable httpd
+          cd /var/www/html
+          git clone https://github.com/Haticesea/my-kittens-carousel.git
+          cp -r my-kittens-carousel/static-web/* /var/www/html/
+          rm -rf my-kittens-carousel
+          systemctl restart httpd
+
+Outputs:
+  WebAppURL:
+    Description: Web site URL
+    Value: !Sub "http://${WebServer.PublicDnsName}"
