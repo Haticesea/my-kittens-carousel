@@ -32,11 +32,10 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub Web Server of ${AWS::StackName}
-      UserData:
-        Fn::Base64: !Sub |
+      UserData: !Base64 |
           #!/bin/bash
-          dnf update -y
-          dnf install -y httpd git
+          yum update -y
+          yum install -y httpd git
           systemctl start httpd
           systemctl enable httpd
           cd /var/www/html
