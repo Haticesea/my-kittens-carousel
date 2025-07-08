@@ -25,7 +25,7 @@ Resources:
     Type: AWS::EC2::Instance
     Properties:
       InstanceType: t2.micro
-      ImageId: ami-0c465454d5e2a38a1  # Amazon Linux 2023 - us-east-1 için örnek
+      ImageId: !Sub '{{resolve:ssm:/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2}}'  # Amazon Linux 2023 - us-east-1 için örnek
       KeyName: !Ref KeyName
       SecurityGroupIds:
         - !Ref WebSG
